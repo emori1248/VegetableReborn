@@ -18,8 +18,8 @@ async def addCenteredTextToImage(content):
     #starting_y = 10
     starting_y = (image.height / 2 - 50)
     
-    image_editable.text((starting_x, starting_y), content, (15, 15, 15), font=title_font)
-    image_editable.text((starting_x, starting_y), content, (15, 15, 15), font=title_font)
+    image_editable.text((starting_x, starting_y), content, (0, 255, 0), font=title_font)
+    image_editable.text((starting_x, starting_y), content, (0, 255, 0), font=title_font)
     image.save("img/result.jpg")
     return "img/result.jpg"
 
