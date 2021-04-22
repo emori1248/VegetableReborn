@@ -1,28 +1,31 @@
-from PIL import Image, ImageFont, ImageDraw 
+
 import random, os
+import pygame
 
-async def addCenteredTextToImage(content):
-    # Grab a random image from the directory
-    
+
+async def addCenteredTextToImage(content, size=30):
+
+    # Set the environment variable to run SDL as headless
+    os.putenv('SDL_VIDEODRIVER', 'dummy')
+
+    pygame.init()
+    WIDTH = 1920
+    HEIGHT = 1080
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    font = pygame.font.SysFont("Arial", size, bold=False, italic=True)
+
+    # Grab and set a random background
     imagedir = random.choice(os.listdir("img"))
-    image = Image.open("img/" + imagedir)
+    bg = pygame.image.load("img/" + imagedir)
+    bg = pygame.transform.scale(bg, (1920, 1080))
+
+    screen.blit(bg, (0, 0))
+    text = font.render(content, 1, pygame.Color("black"))
+    text_rect = text.get_rect(center=(WIDTH//2, HEIGHT//2))
+    screen.blit(text, text_rect)
+
+
+    pygame.display.update()
+    pygame.image.save(screen, "tmp/output.jpg")
     
-    font_size = int( (image.width) / len(content) )
-
-    title_font = ImageFont.truetype('font/comic.ttf', font_size)
-    image_editable = ImageDraw.Draw(image)
-
-    
-    starting_x = 10
-
-    #starting_y = 10
-    starting_y = (image.height / 2 - 50)
-    
-    image_editable.text((starting_x, starting_y), content, (0, 255, 0), font=title_font)
-    image_editable.text((starting_x, starting_y), content, (0, 255, 0), font=title_font)
-    image.save("img/result.jpg")
-    return "img/result.jpg"
-
-async def deleteResult():
-    os.remove("img/result.jpg")
-
+    pygame.quit()

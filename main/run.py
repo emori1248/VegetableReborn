@@ -45,8 +45,7 @@ Commands:
 @bot.command(name='image')
 async def imageCommand(ctx, arg):
     filename = await imagemod.addCenteredTextToImage(arg)
-    await ctx.send(file=discord.File(r'img/result.jpg'))
-    await imagemod.deleteResult()
+    await ctx.send(file=discord.File(r'tmp/output.jpg'))
 
 
 # TTS
