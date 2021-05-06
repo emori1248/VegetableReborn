@@ -51,9 +51,11 @@ async def imageCommand(ctx, arg):
 # TTS
 
 @bot.command(name='tts')
-async def testCommand(ctx):
-    filename = tts.synthesize_text("test")
-    await music.play_file(ctx, filename, bot)
+async def testCommand(ctx, arg):
+    # filename = tts.synthesize_text(arg)
+    # await music.play_file(ctx, filename, bot)
+    pass
+    # Ran out of google TTS api quota lmao might switch
 
 # Music Commands
 
