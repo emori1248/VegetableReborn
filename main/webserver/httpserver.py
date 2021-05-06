@@ -4,7 +4,7 @@ import socketserver
 class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
-            self.path = 'botinterface.html'
+            self.path = '/webserver/botinterface.html'
         return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
 # Create an object of the above class
