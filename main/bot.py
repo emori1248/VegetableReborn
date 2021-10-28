@@ -2,6 +2,7 @@ import discord
 import os
 
 import shutil
+import random
 
 from discord.ext import commands
 import music
@@ -15,16 +16,13 @@ GUILD = 'def dog:'
 intents = discord.Intents().all()
 client = discord.Client(intents=intents)
 activity = discord.Game(name="Fuckers put me on AWS")
-bot = commands.Bot(command_prefix='~',intents=intents, activity=activity)
+bot = commands.Bot(command_prefix='~', intents=intents, activity=activity)
 
 generic_error = "Something broke, msg Potato (See console)."
 
 
 
 """
-TODO For AWS:
-make folders and shit work automatically
-make the dependencies readme actually accurate
 
 TODO Reimplement:
 Webserver
@@ -120,6 +118,16 @@ async def stop(ctx):
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
+
+@bot.event
+async def on_message(message):
+    # print("test")
+    # print(message.author.roles)
+
+    for role in message.author.roles:
+        if role.name.lower() == "horse": # User has role
+            if random.randint(0, 2) == 0:
+                await message.reply(random.choice(["ok gabe", "heard", "over", "good comms"]))
 
     
 
