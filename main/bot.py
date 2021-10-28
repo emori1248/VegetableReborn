@@ -19,7 +19,7 @@ activity = discord.Game(name="Fuckers put me on AWS")
 bot = commands.Bot(command_prefix='~', intents=intents, activity=activity)
 
 generic_error = "Something broke, msg Potato (See console)."
-version = "0.1.0"
+version = "0.1.1"
 
 
 
