@@ -19,7 +19,7 @@ activity = discord.Game(name="Fuckers put me on AWS")
 bot = commands.Bot(command_prefix='~', intents=intents, activity=activity)
 
 generic_error = "Something broke, msg Potato (See console)."
-version = "0.1.1"
+version = "0.1.2"
 
 
 
@@ -131,7 +131,7 @@ async def on_message(message):
 
     for role in message.author.roles:
         if role.name.lower() == "horse": # User has role
-            if random.randint(0, 2) == 0:
+            if random.randint(0, 1) == 0:
                 await message.reply(random.choice(["ok gabe", "heard", "over", "good comms"]))
 
     
