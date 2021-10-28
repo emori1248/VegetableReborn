@@ -5,7 +5,7 @@ import shutil
 
 from discord.ext import commands
 import music
-import tts
+#import tts
 import imagemod
 # import calendarapi
 
@@ -16,8 +16,11 @@ intents = discord.Intents().all()
 client = discord.Client(intents=intents)
 activity = discord.Game(name="Fuckers put me on AWS")
 bot = commands.Bot(command_prefix='~',intents=intents, activity=activity)
+<<<<<<< HEAD
 
 generic_error = "Something broke, msg Potato (See console)."
+=======
+>>>>>>> 36cce72dd3a3f45d937289468120a9866717a810
 
 
 
