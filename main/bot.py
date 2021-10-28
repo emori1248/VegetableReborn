@@ -131,8 +131,8 @@ async def on_message(message):
 
     for role in message.author.roles:
         if role.name.lower() == "horse": # User has role
-            if random.randint(0, 1) == 0:
-                await message.reply(random.choice(["ok gabe", "heard", "over", "good comms"]))
+            if random.randint(0, 20) == 0:
+                await message.reply(random.choice(["ok gabe", "heard", "over", "good comms", "ratio + homeless", "who asked tho"]))
 
     
 
