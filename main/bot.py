@@ -5,7 +5,7 @@ import shutil
 
 from discord.ext import commands
 import music
-import tts
+#import tts
 import imagemod
 
 TOKEN = os.getenv('DISCORD_TOKEN')
