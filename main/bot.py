@@ -13,7 +13,8 @@ GUILD = 'def dog:'
 
 intents = discord.Intents().all()
 client = discord.Client(intents=intents)
-bot = commands.Bot(command_prefix='~',intents=intents)
+activity = discord.Game(name="Fuckers put me on AWS")
+bot = commands.Bot(command_prefix='~',intents=intents, activity=activity)
 
 
 
