@@ -16,11 +16,9 @@ intents = discord.Intents().all()
 client = discord.Client(intents=intents)
 activity = discord.Game(name="Fuckers put me on AWS")
 bot = commands.Bot(command_prefix='~',intents=intents, activity=activity)
-<<<<<<< HEAD
 
 generic_error = "Something broke, msg Potato (See console)."
-=======
->>>>>>> 36cce72dd3a3f45d937289468120a9866717a810
+version = "0.1.0"
 
 
 
@@ -79,6 +77,10 @@ async def testCommand(ctx, arg):
     # Ran out of google TTS api quota lmao might switch
 
 # Admin Commands
+
+@bot.command(name='version')
+async def versionCommand(ctx):
+    await ctx.send(f'Bot is running version {version}.')
 
 # @bot.command(name='timeout')
 # async def timeoutCommand(ctx):
