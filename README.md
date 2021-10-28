@@ -1,5 +1,6 @@
 # VegetableReborn
 Dependencies:
-discord.py
+discord.py (voice version)
 youtube_dl
-pillow
+pygame
+Google Calendar API

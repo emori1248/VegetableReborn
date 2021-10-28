@@ -7,19 +7,28 @@ from discord.ext import commands
 import music
 import tts
 import imagemod
+# import calendarapi
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = 'def dog:'
 
 intents = discord.Intents().all()
 client = discord.Client(intents=intents)
-bot = commands.Bot(command_prefix='~',intents=intents)
+activity = discord.Game(name="Fuckers put me on AWS")
+bot = commands.Bot(command_prefix='~',intents=intents, activity=activity)
+
+generic_error = "Something broke, msg Potato (See console)."
 
 
 
 """
+TODO For AWS:
+make folders and shit work automatically
+make the dependencies readme actually accurate
+
 TODO Reimplement:
 Webserver
+Nice looking help command
 
 Commands:
     Say
@@ -39,13 +48,22 @@ markov chain thing
 see if a posted picture is of a cat
 Commands:
     Check if minecraft server is up and running
+
+TODO calendar design
+type ~register in a dm channel to register for notifs
+on startup add all registered users to a notif list
+get the next event from goog calendar and set a timer to post that to all registered user dms when it fires
+on event fire set timer for next event
 """
 
 # Generic Commands
 @bot.command(name='image')
 async def imageCommand(ctx, arg):
-    filename = await imagemod.addCenteredTextToImage(arg)
-    await ctx.send(file=discord.File(r'tmp/output.jpg'))
+    if (await imagemod.addCenteredTextToImage(arg)):
+        await ctx.send(file=discord.File(r'tmp/output.jpg'))
+    else:
+        await ctx.send(generic_error)
+        print("ERROR: img dir empty for image command")
 
 
 # TTS
@@ -54,14 +72,24 @@ async def imageCommand(ctx, arg):
 async def testCommand(ctx, arg):
     # filename = tts.synthesize_text(arg)
     # await music.play_file(ctx, filename, bot)
-    pass
+    await ctx.send("TTS is currently disabled due to reaching Google's TTS quota.")
     # Ran out of google TTS api quota lmao might switch
+
+# Admin Commands
+
+# @bot.command(name='timeout')
+# async def timeoutCommand(ctx):
+#     member = ctx.message.author
+#     role = discord.utils.get(ctx.message.guild.roles, name="Timeout")
+#     await member.add_roles(role)
 
 # Music Commands
 
-@bot.command(name='test')
-async def testCommand(ctx):
-    await ctx.send('eat shit and die.')
+# @bot.command(name='test')
+# async def testCommand(ctx):
+#     content = calendarapi.main()
+    
+#     await ctx.send(content)
 
 @bot.command(name='join',help='Joins the bot into the channel')
 async def join(ctx):
