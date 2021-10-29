@@ -21,9 +21,6 @@ activity = discord.Game(name="Fuckers put me on AWS")
 
 client = discord.Client(intents=intents, activity=activity)
 generic_error = "Something broke, msg Potato (See console)."
-<<<<<<< HEAD
-version = "0.1.3"
-=======
 version = "0.2.0"
 
 # def add_command(func):
@@ -36,7 +33,6 @@ class CommandHandler(object):
 
     def __call__(self, f):
         commands.append(SimpleCommand(name=self.name, description=self.description, executor=f))
->>>>>>> dev
 
 
 
