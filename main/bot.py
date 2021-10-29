@@ -21,10 +21,10 @@ activity = discord.Game(name="Fuckers put me on AWS")
 
 client = discord.Client(intents=intents, activity=activity)
 generic_error = "Something broke, msg Potato (See console)."
-version = "0.2.0"
+version = "0.3.0"
 
-# def add_command(func):
-#     commands.append(SimpleCommand(name='test', executor=func))
+LEFT_ARROW = '\U00002B05'
+RIGHT_ARROW = '\U000027A1'
 
 class CommandHandler(object):
     def __init__(self, name, desc='default description.'):
@@ -34,15 +34,25 @@ class CommandHandler(object):
     def __call__(self, f):
         commands.append(SimpleCommand(name=self.name, description=self.description, executor=f))
 
-
-
 class SimpleCommand:
     def __init__(self, name, executor, description):
         self.name = name
         self.description = description
         self.executor = executor
 
+# number as page number (index starting at 1)
+def getHelpPageEmbed(number):
+    items_per_page = 5
+    # If page out of bounds
+    if number - 1 >= len(commands) / items_per_page or number <= 0:
+        # Invalid Help Page
+        return None
 
+    emb = discord.Embed(title=f"Help Page {number}")
+    for c in commands[(number-1)*items_per_page:(number*items_per_page)]:
+        emb.add_field(name=c.name, value=c.description, inline=False)
+
+    return emb
 """
 
 TODO Reimplement:
@@ -74,7 +84,7 @@ get the next event from goog calendar and set a timer to post that to all regist
 on event fire set timer for next event
 """
 
-@CommandHandler(name='image')
+@CommandHandler(name='Image')
 async def imageCommand(ctx, arg):
     if (await imagemod.addCenteredTextToImage(arg)):
         await ctx.send(file=discord.File(r'tmp/output.jpg'))
@@ -82,18 +92,15 @@ async def imageCommand(ctx, arg):
         await ctx.send(generic_error)
         print("ERROR: img dir empty for image command")
 
-# TODO make better
-@CommandHandler(name='help')
+@CommandHandler(name='Help')
 async def helpCommand(message, args):
-    print("test")
-    str = ""
-    for command in commands:
-        str += f'{command.name}: \'{command.description}\'\n'
-    await message.channel.send(str)
+    m = await message.channel.send(embed=getHelpPageEmbed(1))
+    await m.add_reaction(LEFT_ARROW)
+    await m.add_reaction(RIGHT_ARROW)
 
 # TTS
 
-@CommandHandler(name='tts', desc='Reads a user supplied message')
+@CommandHandler(name='TTS', desc='Reads a user supplied message')
 async def ttsCommand(message, args):
     await message.channel.send("TTS is currently disabled due to reaching Google's TTS quota.")
     # filename = tts.synthesize_text(arg)
@@ -101,22 +108,48 @@ async def ttsCommand(message, args):
 
 # Admin Commands
 
-@CommandHandler(name='version', desc='Shows the currently runnning version of the bot.')
+@CommandHandler(name='Version', desc='Shows the currently runnning version of the bot.')
 async def versionCommand(message, args):
     await message.channel.send(f'Bot is running version {version}.')
 
+@CommandHandler(name='Example')
+async def versionCommand(message, args):
+    pass
+
 # Passive events (startup/etc.)
 
-@CommandHandler(name='test')
+@CommandHandler(name='Test')
 async def testCommand(message, args):
-    print(commands[0].name + commands[0].desc)
-
-# commands.append(SimpleCommand(name='test', executor=testCommand))
+    pass
 
 
 @client.event
 async def on_ready():
     print(f'{client.user.name} has connected to Discord!')
+
+@client.event
+async def on_reaction_add(reaction, user):
+    if user.bot:
+        return
+    if(reaction.emoji == LEFT_ARROW):
+        # if help message
+        title = reaction.message.embeds[0].title
+        if 'Help' in title:
+            # edit to next page
+            index = title[len(title)-1]
+            emb = getHelpPageEmbed(int(index)-1)
+            if emb != None:
+                await reaction.message.edit(embed=emb)
+       
+    if(reaction.emoji == RIGHT_ARROW):
+        # if help message
+        title = reaction.message.embeds[0].title
+        if 'Help' in title:
+            # edit to next page
+            index = title[len(title)-1]
+            emb = getHelpPageEmbed(int(index)+1)
+            if emb != None:
+                await reaction.message.edit(embed=emb)
 
 @client.event
 async def on_message(message):
@@ -130,10 +163,11 @@ async def on_message(message):
 
         args = (message.content[1:]).split()
 
-        # Run any matching command executors to the arg0
+        # Run the first matching command executor to the arg0 of the command string
         for c in commands:
             if c.name.lower() == args[0].lower():
                 await c.executor(message, args)
+                return
 
 
     # Check for any other message related events
