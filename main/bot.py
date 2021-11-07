@@ -12,6 +12,8 @@ import music
 import imagemod
 # import calendarapi
 
+from mcstatus import MinecraftServer
+
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = 'def dog:'
 
@@ -107,7 +109,7 @@ on event fire set timer for next event
 # Fun commands
 
 @CommandHandler(name='RTC', desc='This will make the problem worse, not fix it.')
-async def testCommand(message, args):
+async def rtcCommand(message, args):
     count = len(message.mentions)
     if count == 0:
         user = message.author
@@ -133,6 +135,15 @@ async def testCommand(message, args):
     home = message.author.voice.channel
     await move_user(5, channels, user)
     await message.author.move_to(home)
+
+@CommandHandler(name='Mcstatus', desc='Checks the status of the public Potato MC server.')
+async def mcstatusCommand(message, args):
+    server = MinecraftServer(CONFIG.data["mc_ip"], CONFIG.data["mc_port"])
+    try:
+        status = server.status()
+        await message.channel.send("{0} players online (Version {1}), and replied in {2} ms".format(status.players.online, status.version.name, status.latency))
+    except:
+        await message.channel.send('Server is down.')
 
 @CommandHandler(name='Image')
 async def imageCommand(ctx, arg):
@@ -170,7 +181,8 @@ async def versionCommand(message, args):
 
 @CommandHandler(name='Test')
 async def testCommand(message, args):
-    print(message.mentions)
+    pass
+    
 
 
 @client.event
