@@ -3,6 +3,8 @@ import os
 
 import shutil
 import random
+import json
+import asyncio
 
 from discord.ext import commands
 import music
@@ -22,6 +24,9 @@ activity = discord.Game(name="Fuckers put me on AWS")
 client = discord.Client(intents=intents, activity=activity)
 generic_error = "Something broke, msg Potato (See console)."
 version = "0.3.0"
+
+CONFIG_PATH = "config.json"
+CONFIG = None
 
 LEFT_ARROW = '\U00002B05'
 RIGHT_ARROW = '\U000027A1'
@@ -53,10 +58,25 @@ def getHelpPageEmbed(number):
         emb.add_field(name=c.name, value=c.description, inline=False)
 
     return emb
+
+class Config():
+    def __init__(self, path):
+        self.path = path
+        self.readFromFile(path)
+
+    def readFromFile(self, path):
+        f = open(path)
+        data = json.load(f)
+        self.data = data
+        if self.data['debug']:
+            print('Debug enabled')
+    
+    def getContentDict(self):
+        return self.data['contentDict']
 """
 
-TODO Reimplement:
-Refactor out of Bot system to Client
+TODO:
+Nice friendly config file
 
 Commands:
     Say
@@ -84,6 +104,36 @@ get the next event from goog calendar and set a timer to post that to all regist
 on event fire set timer for next event
 """
 
+# Fun commands
+
+@CommandHandler(name='RTC', desc='This will make the problem worse, not fix it.')
+async def testCommand(message, args):
+    count = len(message.mentions)
+    if count == 0:
+        user = message.author
+    elif count == 1:
+        user = message.mentions[0]
+    else:
+        await message.channel.send('Too many mentions, usage: `~rtc <user>`')
+        return
+
+    if user.voice == None or user.voice.channel == None:
+        await message.channel.send('User not in voice channel.')
+        return
+
+    async def move_user(idx, channnels, user):
+        if idx == 0:
+            return
+        await user.move_to(channels[random.randint(0, len(channels)-1)])
+        await asyncio.sleep(0.35)
+        await move_user(idx-1, channels, user)
+
+    channels = message.guild.voice_channels
+
+    home = message.author.voice.channel
+    await move_user(5, channels, user)
+    await message.author.move_to(home)
+
 @CommandHandler(name='Image')
 async def imageCommand(ctx, arg):
     if (await imagemod.addCenteredTextToImage(arg)):
@@ -100,7 +150,7 @@ async def helpCommand(message, args):
 
 # TTS
 
-@CommandHandler(name='TTS', desc='Reads a user supplied message')
+@CommandHandler(name='TTS', desc='Reads a user supplied message (Disabled).')
 async def ttsCommand(message, args):
     await message.channel.send("TTS is currently disabled due to reaching Google's TTS quota.")
     # filename = tts.synthesize_text(arg)
@@ -120,7 +170,7 @@ async def versionCommand(message, args):
 
 @CommandHandler(name='Test')
 async def testCommand(message, args):
-    pass
+    print(message.mentions)
 
 
 @client.event
@@ -175,8 +225,8 @@ async def on_message(message):
     for role in message.author.roles:
         if role.name.lower() == "horse": # User has role
             if random.randint(0, 20) == 0:
-                await message.reply(random.choice(["ok gabe", "heard", "over", "good comms", "ratio + homeless", "who asked tho"]))
+                await message.reply(random.choice(CONFIG.getContentDict()['horse']))
 
     
-
+CONFIG = Config(CONFIG_PATH)
 client.run(TOKEN)
