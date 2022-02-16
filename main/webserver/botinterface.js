@@ -42,6 +42,7 @@ function writeMessageFunc()
     var messageContent = document.getElementById('writeMessageInput').value;
     var request = {TYPE:'SENDTEXT', CHANNEL:selectedTextChannel.id, MESSAGE:messageContent}
     webSocket.send(JSON.stringify(request));
+    document.getElementById('writeMessageInput').value="";
 }
 
 function stopSoundsFunc()
@@ -70,6 +71,7 @@ function onTextChannelChange()
     var e = document.getElementById("tcsDropdown");
     var selectedStr = e.options[e.selectedIndex].text;
     for(var i = 0; i < textChannelsList.length; i++) {
+        //console.log(textChannelsList[i].id);
         if(textChannelsList[i].displayName == selectedStr){
             selectedTextChannel = textChannelsList[i];
             console.log(selectedTextChannel.id);
@@ -84,7 +86,7 @@ function onSpeakForm()
 
 function loadFunc()
 {
-    var url = "ws://localhost:8080/botWS"
+    var url = "ws://127.0.0.1:5678/"
     
     webSocket = new WebSocket(url);
 
@@ -99,14 +101,14 @@ function loadFunc()
     webSocket.onmessage = function (event) {
         console.log(event.data);
         var obj = JSON.parse(event.data)
-        if("guilds" in obj.response){
-            guildsList = obj.response.guilds;
+        if("guilds" in obj){
+            guildsList = obj.guilds;
             populateGuildsDropdown(guildsList);
             selectedGuild = guildsList[0];
             tcsButtonFunc();
         }
-        if("textChannels" in obj.response){
-            textChannelsList = obj.response.textChannels;
+        if("textChannels" in obj){
+            textChannelsList = obj.textChannels;
             populateTextChannelsDropdown(textChannelsList);
             selectedTextChannel = textChannelsList[0];
         }

@@ -12,6 +12,9 @@ import music
 import imagemod
 # import calendarapi
 
+import datetime
+import websockets
+
 from mcstatus import MinecraftServer
 
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -25,13 +28,16 @@ activity = discord.Game(name="Fuckers put me on AWS")
 
 client = discord.Client(intents=intents, activity=activity)
 generic_error = "Something broke, msg Potato (See console)."
-version = "0.3.0"
+version = "0.5.0"
 
 CONFIG_PATH = "config.json"
 CONFIG = None
 
+WEBSOCKET_SERVER = None
+
 LEFT_ARROW = '\U00002B05'
 RIGHT_ARROW = '\U000027A1'
+RED_X = '\U0000274C'
 
 class CommandHandler(object):
     def __init__(self, name, desc='default description.'):
@@ -78,7 +84,7 @@ class Config():
 """
 
 TODO:
-Nice friendly config file
+Auto-populate missing config file
 
 Commands:
     Say
@@ -159,6 +165,11 @@ async def helpCommand(message, args):
     await m.add_reaction(LEFT_ARROW)
     await m.add_reaction(RIGHT_ARROW)
 
+@CommandHandler(name='Beep')
+async def helpCommand(message, args):
+    m = await message.channel.send('do not react')
+    await m.add_reaction(RED_X)
+
 # TTS
 
 @CommandHandler(name='TTS', desc='Reads a user supplied message (Disabled).')
@@ -188,6 +199,8 @@ async def testCommand(message, args):
 @client.event
 async def on_ready():
     print(f'{client.user.name} has connected to Discord!')
+    # Add the websocket server to the list of coroutines
+    asyncio.ensure_future(WEBSOCKET_SERVER.coroutine())
 
 @client.event
 async def on_reaction_add(reaction, user):
@@ -212,6 +225,12 @@ async def on_reaction_add(reaction, user):
             emb = getHelpPageEmbed(int(index)+1)
             if emb != None:
                 await reaction.message.edit(embed=emb)
+
+    if(reaction.emoji == RED_X):
+        print('working')
+        dmchannel = await user.create_dm()
+        await dmchannel.send('https://cdn.discordapp.com/attachments/680290124797706260/680290416847093814/IMG_1176.JPG')
+        await dmchannel.send('mmm tasty snnack yumm y ..')
 
 @client.event
 async def on_message(message):
@@ -240,5 +259,53 @@ async def on_message(message):
                 await message.reply(random.choice(CONFIG.getContentDict()['horse']))
 
     
+class WebsocketServer:
+    def __init__(self):
+        pass
+
+    def coroutine(self):
+        async def handler(websocket, path):
+            while True:
+                message = await websocket.recv()
+                # Respond to message accordingly
+                query = json.loads(message)
+                print(query)
+                if query['TYPE'] == 'GETGUILDS':
+                    guilds = []
+                    async for guild in client.fetch_guilds(limit=150):
+                        g = {
+                            "id": guild.id,
+                            "displayName" : guild.name,
+                            'iconURL': str(guild.icon_url)
+                        }
+                        guilds.append(g)
+                    response = {
+                        "guilds": guilds
+                    }
+                    await websocket.send(json.dumps(response))
+
+                if query['TYPE'] == 'GETTEXT':
+                    tcs = []
+                    g = client.get_guild(query['GUILD'])
+                    for channel in g.text_channels:
+                        tcs.append({
+                            "id": str(channel.id),
+                            "displayName" : channel.name
+                        })
+                    response = {
+                        "textChannels": tcs
+                    }
+                    await websocket.send(json.dumps(response))
+                
+                if query['TYPE'] == 'SENDTEXT':
+                    # Cast the channel id back to int, get the channel by its id, send the message
+                    await client.get_channel(int(query['CHANNEL'])).send(query['MESSAGE'])
+                
+
+        return websockets.serve(handler, '127.0.0.1', 5678)
+
+
+
 CONFIG = Config(CONFIG_PATH)
+WEBSOCKET_SERVER = WebsocketServer()
 client.run(TOKEN)
