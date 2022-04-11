@@ -120,7 +120,8 @@ async def versionCommand(message, args):
 
 @CommandHandler(name='Test')
 async def testCommand(message, args):
-    pass
+    async for member in message.guild.fetch_members(limit=50):
+        print("{} {}".format(member.name, member.activity))
 
 
 @client.event
